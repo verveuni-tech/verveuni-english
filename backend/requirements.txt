@@ -1,0 +1,16 @@
+fastapi
+uvicorn
+
+firebase-admin==6.5.0
+google-cloud-firestore==2.15.0
+
+grpcio==1.62.1
+grpcio-status==1.62.1
+
+librosa
+numpy
+scipy
+numba
+soundfile
+audioread
+requests
