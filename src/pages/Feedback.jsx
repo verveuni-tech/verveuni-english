@@ -22,7 +22,7 @@ export default function FeedbackPage() {
       const data = snap.data();
       setSession(data);
 
-      // ✅ SAVE FEEDBACK SNAPSHOT ONCE
+      // Persist interpreted feedback ONCE (snapshot-style)
       if (
         data.status === "completed" &&
         data.analysis &&
@@ -36,38 +36,45 @@ export default function FeedbackPage() {
     return () => unsub();
   }, [sessionId]);
 
-  if (!session) {
+  // -------------------------------
+  // Loading / processing state
+  // -------------------------------
+  if (!session || session.status !== "completed") {
     return (
       <div className="min-h-screen flex items-center justify-center bg-slate-50">
-        <p className="text-slate-600">Loading feedback…</p>
+        <p className="text-slate-600">
+          Analyzing your session…
+        </p>
       </div>
     );
   }
 
-  // ✅ Always read from Firestore first
+  // Prefer saved feedback; fallback to live interpretation
   const insights =
     session.interpretedFeedback ??
     interpretSession(session.analysis);
 
+  const scores = session.analysis?.scores;
+
   return (
     <div className="min-h-screen bg-slate-50 px-4 py-10">
       <div className="max-w-3xl mx-auto">
-        {/* Interview ID */}
+
+        {/* Session ID */}
         <div className="mb-8 text-center bg-white rounded-xl shadow-sm p-4">
           <p className="text-xs uppercase tracking-wide text-slate-500">
-            Interview ID
+            Session ID
           </p>
           <p className="mt-1 font-mono text-lg text-slate-800">
-            {session.publicId}
+            {session.publicId || sessionId}
           </p>
           <p className="mt-1 text-xs text-slate-400">
             Save this ID to access your feedback later
           </p>
         </div>
 
-        <FeedbackUI insights={insights} />
+        <FeedbackUI insights={insights} scores={scores} />
       </div>
     </div>
   );
 }
-    

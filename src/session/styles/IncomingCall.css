@@ -1,0 +1,134 @@
+.incoming-root {
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Vertical padding removed */
+.incoming-surface {
+  width: 100%;
+  max-width: 420px;
+  padding: 0 32px;
+  background: #ffffff;
+  border-radius: 20px;
+  box-shadow: 0 30px 60px rgba(0, 0, 0, 0.08);
+  text-align: center;
+}
+
+/* Status */
+.incoming-status {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin-top: 28px;
+  margin-bottom: 24px;
+}
+
+.status-dot {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: #22c55e;
+  animation: blink 1.4s infinite;
+}
+
+.status-text {
+  font-size: 14px;
+  font-weight: 500;
+  color: #16a34a;
+}
+
+@keyframes blink {
+  0% { opacity: 1; }
+  50% { opacity: 0.35; }
+  100% { opacity: 1; }
+}
+
+/* Caller anchor */
+.caller-zone {
+  position: relative;
+  margin-bottom: 22px;
+}
+
+.caller-pulse {
+  position: absolute;
+  inset: 50% auto auto 50%;
+  width: 140px;
+  height: 140px;
+  background: rgba(37, 99, 235, 0.15);
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+  animation: slowPulse 2.4s infinite;
+  z-index: 0;
+}
+
+@keyframes slowPulse {
+  0% { transform: translate(-50%, -50%) scale(1); opacity: 0.6; }
+  70% { transform: translate(-50%, -50%) scale(1.25); opacity: 0; }
+  100% { opacity: 0; }
+}
+
+.caller-avatar {
+  position: relative;
+  z-index: 1;
+  width: 110px;
+  height: 110px;
+  margin: 0 auto;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #2563eb, #1e40af);
+  color: #ffffff;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 16px 30px rgba(37, 99, 235, 0.35);
+}
+
+.caller-waiting {
+  margin-top: 10px;
+  font-size: 13px;
+  color: #64748b;
+}
+
+/* Text */
+.incoming-title {
+  margin-top: 24px;
+  font-size: 21px;
+  font-weight: 600;
+  color: #0f172a;
+}
+
+.incoming-subtitle {
+  margin-top: 8px;
+  font-size: 15px;
+  color: #475569;
+  line-height: 1.5;
+}
+
+/* CTA */
+.accept-btn {
+  margin: 26px 0 32px;
+  width: 100%;
+  padding: 14px 0;
+  border-radius: 999px;
+  background: #16a34a;
+  color: #ffffff;
+  font-size: 16px;
+  font-weight: 600;
+  border: none;
+  cursor: pointer;
+  transition: transform 0.15s ease, box-shadow 0.15s ease, background 0.15s ease;
+}
+
+.accept-btn:hover {
+  background: #15803d;
+  transform: translateY(-1px);
+  box-shadow: 0 12px 22px rgba(22, 163, 74, 0.35);
+}
+
+.accept-btn:active {
+  transform: translateY(0);
+  box-shadow: none;
+}

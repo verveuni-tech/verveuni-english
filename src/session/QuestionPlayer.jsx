@@ -1,11 +1,7 @@
 import { useEffect, useRef } from "react";
+import "./styles/QuestionPlayer.css";
 
-const QuestionPlayer = ({
-  audioSrc,
-  onComplete,
-  questionIndex,
-  totalQuestions,
-}) => {
+const QuestionPlayer = ({ audioSrc, onComplete }) => {
   const audioRef = useRef(null);
   const didPlayRef = useRef(false);
 
@@ -22,9 +18,7 @@ const QuestionPlayer = ({
           didPlayRef.current = true;
         }
       })
-      .catch(() => {
-        // Ignore autoplay / abort errors
-      });
+      .catch(() => {});
 
     audio.onended = () => {
       onComplete();
@@ -33,7 +27,6 @@ const QuestionPlayer = ({
     return () => {
       cancelled = true;
 
-      // Only pause if playback actually started
       if (didPlayRef.current) {
         audio.pause();
         audio.currentTime = 0;
@@ -44,17 +37,10 @@ const QuestionPlayer = ({
   }, [audioSrc, onComplete]);
 
   return (
-    <div className="relative text-center">
-      <div className="absolute top-0 right-0 text-sm text-gray-500">
-        Question {questionIndex + 1} of {totalQuestions}
-      </div>
-
-      <h2 className="text-xl font-semibold mb-2">
-        Listening to interviewer
-      </h2>
-
-      <p className="text-gray-600 mb-6">
-        Please listen carefully. Do not speak yet.
+    <div className="question-player">
+      <p className="instruction">
+        Please listen carefully.
+        Do not speak yet.
       </p>
 
       <audio ref={audioRef} src={audioSrc} preload="auto" />

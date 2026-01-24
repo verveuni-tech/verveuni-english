@@ -1,3 +1,5 @@
+import os
+
 from ingestion.audio_loader import load_audio_from_url
 from preprocessing.signal_cleanup import (
     normalize_amplitude,
@@ -6,57 +8,128 @@ from preprocessing.signal_cleanup import (
 from analysis.temporal import temporal_metrics
 from analysis.energy import energy_metrics
 from analysis.prosody import prosody_metrics
+
 from scoring.rules import interpret_metrics
 from scoring.scores import (
     confidence_score,
     fluency_score,
     pause_control_score
 )
+
+from transcription.transcribe_audio import transcribe_audio
+from analysis.language import english_validity_metrics
+
 from contracts.output_schema import build_output_contract
 
 
 def analyze_session(audio_url: str):
-    # 1. Load audio
-    y, sr = load_audio_from_url(audio_url)
+    wav_path = None
 
-    # 2. Preprocess
-    y = normalize_amplitude(y)
-    y = trim_leading_trailing_silence(y, sr)
+    try:
+        # ---------------------------------------------------------
+        # 1. Load audio (download + convert once)
+        # ---------------------------------------------------------
+        y, sr, wav_path = load_audio_from_url(audio_url)
 
-    # 3. Raw analysis
-    temporal = temporal_metrics(y, sr)
-    energy = energy_metrics(y, sr)
-    prosody = prosody_metrics(y, sr)
+        # ---------------------------------------------------------
+        # 2. Preprocess (AUDIO ONLY)
+        # ---------------------------------------------------------
+        y = normalize_amplitude(y)
+        y = trim_leading_trailing_silence(y, sr)
 
-    # 4. Derived metrics
-    total_duration = len(y) / sr if sr > 0 else 0.0
-    speaking_ratio = (
-        round(temporal["speaking_time"] / total_duration, 2)
-        if total_duration > 0 else 0.0
-    )
+        # ---------------------------------------------------------
+        # 3. Raw acoustic analysis (LANGUAGE-AGNOSTIC)
+        # ---------------------------------------------------------
+        temporal = temporal_metrics(y, sr)
+        energy = energy_metrics(y, sr)
+        prosody = prosody_metrics(y, sr)
 
-    raw_metrics = {
-        "total_duration": round(total_duration, 2),
-        "speaking_ratio": speaking_ratio,
-        **temporal,
-        **energy,
-        **prosody,
-    }
+        # ---------------------------------------------------------
+        # 4. Derived acoustic metrics
+        # ---------------------------------------------------------
+        total_duration = len(y) / sr if sr > 0 else 0.0
+        speaking_ratio = (
+            round(temporal["speaking_time"] / total_duration, 2)
+            if total_duration > 0 else 0.0
+        )
 
-    # 5. Rule-based signals
-    signals = interpret_metrics(raw_metrics)
+        raw_metrics = {
+            "total_duration": round(total_duration, 2),
+            "speaking_ratio": speaking_ratio,
+            **temporal,
+            **energy,
+            **prosody,
+        }
 
-    # 6. Normalized scores
-    scores = {
-        "confidence_score": confidence_score(raw_metrics),
-        "fluency_score": fluency_score(raw_metrics),
-        "pause_control_score": pause_control_score(raw_metrics),
-    }
+        # ---------------------------------------------------------
+        # 5. Fluency signals (RULE-BASED, AUDIO ONLY)
+        # ---------------------------------------------------------
+        signals = interpret_metrics(raw_metrics)
 
-    # 7. FINAL output contract (built ONCE)
-    return build_output_contract(
-        raw_metrics=raw_metrics,
-        signals=signals,
-        scores=scores,
-        sr=sr,
-    )
+        # ---------------------------------------------------------
+        # 6. Fluency scores (AUDIO ONLY)
+        # ---------------------------------------------------------
+        fluency_scores = {
+            "confidence": confidence_score(raw_metrics),
+            "fluency": fluency_score(raw_metrics),
+            "pause_control": pause_control_score(raw_metrics),
+        }
+
+        fluency_score_final = round(
+            sum(fluency_scores.values()) / len(fluency_scores), 2
+        )
+
+        # ---------------------------------------------------------
+        # 7. LANGUAGE LAYER (TRANSCRIPTION + ENGLISH VALIDITY)
+        # ---------------------------------------------------------
+        transcription = transcribe_audio(wav_path)
+
+        english_metrics = english_validity_metrics(
+            transcript=transcription["transcript"],
+            detected_language=transcription["language"],
+        )
+
+        english_score = round(
+            english_metrics["english_ratio"] * 100, 2
+        )
+
+        # ---------------------------------------------------------
+        # 8. FINAL SCORE (ANTI-CHEAT RULES APPLIED)
+        # ---------------------------------------------------------
+        final_score = round(
+            fluency_score_final * 0.6 + english_score * 0.4, 2
+        )
+
+        # Hard caps (anti-bypass)
+        if english_metrics["english_ratio"] < 0.5:
+            final_score = min(final_score, 30)
+
+        if transcription["word_count"] < 40:
+            final_score = min(final_score, 40)
+
+        # ---------------------------------------------------------
+        # 9. FINAL OUTPUT CONTRACT (BUILT ONCE)
+        # ---------------------------------------------------------
+        return build_output_contract(
+            raw_metrics=raw_metrics,
+            signals=signals,
+            scores={
+                "fluency": fluency_score_final,
+                "english": english_score,
+                "final": final_score,
+            },
+            sr=sr,
+            extra={
+                "transcript": transcription["transcript"],
+                "language": transcription["language"],
+                "english_ratio": english_metrics["english_ratio"],
+                "word_count": transcription["word_count"],
+            },
+        )
+
+    finally:
+        # ---------------------------------------------------------
+        # 10. Guaranteed cleanup of temp WAV
+        # ---------------------------------------------------------
+        if wav_path and os.path.exists(wav_path):
+            os.remove(wav_path)

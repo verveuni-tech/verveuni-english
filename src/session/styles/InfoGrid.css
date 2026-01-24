@@ -1,0 +1,26 @@
+@media (max-width: 640px) {
+  .cx-info-section {
+    margin-bottom: 12px;
+  }
+
+  /* Collapse history by default */
+  .ant-collapse {
+    margin-top: 8px;
+  }
+}
+
+
+/* HARD override for AntD Descriptions value cells */
+.cx-info-grid .ant-descriptions-item-content {
+  word-break: keep-all;
+  overflow-wrap: normal;
+  white-space: normal;
+}
+
+
+/* Allow wrapping ONLY on small screens */
+@media (max-width: 640px) {
+  .cx-info-grid .ant-descriptions-item-content {
+    white-space: normal;
+  }
+}

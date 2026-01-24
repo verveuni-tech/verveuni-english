@@ -4,15 +4,17 @@ export const useSessionController = (totalQuestions) => {
   const [step, setStep] = useState("INTRO");
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
 
-  // Holds raw audio blobs only (combined later)
+  // Holds raw audio blobs
   const audioChunksRef = useRef([]);
 
   const startSession = useCallback(() => {
+    // Reset state for safety
+    audioChunksRef.current = [];
+    setCurrentQuestionIndex(0);
     setStep("QUESTION");
   }, []);
 
   const onQuestionEnd = useCallback(() => {
-    // Immediately go to recording (pressure-based)
     setStep("RECORDING");
   }, []);
 
@@ -28,8 +30,8 @@ export const useSessionController = (totalQuestions) => {
         return;
       }
 
-      // Session finished → show post-session form
-      setStep("POST_FORM");
+      // ✅ Session finished → show post-session intro
+      setStep("POST_INTRO");
     },
     [currentQuestionIndex, totalQuestions]
   );
@@ -38,6 +40,10 @@ export const useSessionController = (totalQuestions) => {
     return new Blob(audioChunksRef.current, {
       type: "audio/webm",
     });
+  }, []);
+
+  const goToPostForm = useCallback(() => {
+    setStep("POST_FORM");
   }, []);
 
   const goToProcessing = useCallback(() => {
@@ -56,6 +62,7 @@ export const useSessionController = (totalQuestions) => {
       onQuestionEnd,
       onRecordingEnd,
       getFinalAudioBlob,
+      goToPostForm,
       goToProcessing,
       goToResult,
     },

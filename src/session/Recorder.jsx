@@ -1,25 +1,26 @@
 import { useEffect, useRef, useState } from "react";
+import "./styles/Recorder.css";
 
-const Recorder = ({
-  onComplete,
-  questionIndex,
-  totalQuestions,
-}) => {
+const Recorder = ({ onComplete }) => {
   const mediaRecorderRef = useRef(null);
   const chunksRef = useRef([]);
   const [recordingTime, setRecordingTime] = useState(30);
 
   useEffect(() => {
     navigator.mediaDevices.getUserMedia({ audio: true }).then((stream) => {
-      mediaRecorderRef.current = new MediaRecorder(stream);
-      mediaRecorderRef.current.start();
+      const recorder = new MediaRecorder(stream);
+      mediaRecorderRef.current = recorder;
 
-      mediaRecorderRef.current.ondataavailable = (e) => {
+      recorder.start();
+
+      recorder.ondataavailable = (e) => {
         chunksRef.current.push(e.data);
       };
 
-      mediaRecorderRef.current.onstop = () => {
-        const blob = new Blob(chunksRef.current, { type: "audio/webm" });
+      recorder.onstop = () => {
+        const blob = new Blob(chunksRef.current, {
+          type: "audio/webm",
+        });
         chunksRef.current = [];
         onComplete(blob);
       };
@@ -28,34 +29,33 @@ const Recorder = ({
 
   useEffect(() => {
     if (recordingTime === 0) {
-      mediaRecorderRef.current.stop();
+      mediaRecorderRef.current?.stop();
       return;
     }
+
     const timer = setTimeout(
       () => setRecordingTime((t) => t - 1),
       1000
     );
+
     return () => clearTimeout(timer);
   }, [recordingTime]);
 
   return (
-    <div className="relative text-center">
-      <div className="absolute top-0 right-0 text-sm text-gray-500">
-        Question {questionIndex + 1} of {totalQuestions}
+    <div className="recorder">
+      <div className="recorder-instruction">
+        Speak clearly and continuously.
       </div>
 
-      <h2 className="text-xl font-semibold mb-2">
-        Recording your answer
-      </h2>
+   <div
+  className={`recorder-timer ${
+    recordingTime <= 5 ? "ending" : ""
+  }`}
+>
+  <span className="rec-dot" />
+  {recordingTime}s remaining
+</div>
 
-      <p className="text-gray-600 mb-4">
-        Speak continuously. No pauses or retries.
-      </p>
-
-      <div className="flex justify-center items-center gap-2 text-sm">
-        <span className="w-2 h-2 bg-red-500 rounded-full animate-pulse" />
-        Time left: {recordingTime}s
-      </div>
     </div>
   );
 };

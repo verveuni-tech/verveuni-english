@@ -1,112 +1,157 @@
-import { HiOutlineMicrophone, HiOutlineChartBar } from "react-icons/hi";
-import { BsCameraVideo } from "react-icons/bs";
+import { useNavigate } from "react-router-dom";
+import { Mic, UserCheck, MessageSquare } from "lucide-react";
 
 export default function Hero() {
+  const navigate = useNavigate();
+
   return (
-    <section className="bg-white">
-      <div className="mx-auto max-w-7xl px-5 sm:px-6 py-14 sm:py-20">
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-16 items-center">
-          
+    <section className="relative overflow-hidden bg-white">
+      {/* RIGHT HALF POLKA DOT BACKGROUND */}
+      <div
+        className="absolute inset-y-0 right-0 w-1/2 -z-10"
+        style={{
+          backgroundColor: "#ffffff",
+          backgroundImage:
+            "url(\"data:image/svg+xml,%3Csvg width='20' height='20' viewBox='0 0 20 20' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='%23000000' fill-opacity='0.18'%3E%3Ccircle cx='3' cy='3' r='3'/%3E%3Ccircle cx='13' cy='13' r='3'/%3E%3C/g%3E%3C/svg%3E\")",
+          backgroundSize: "20px 20px",
+        }}
+      />
+
+      <div className="mx-auto max-w-7xl px-6 py-24">
+        <div className="grid grid-cols-1 items-center gap-20 lg:grid-cols-2">
           {/* LEFT CONTENT */}
-          <div>
-            <span className="inline-flex items-center rounded-full bg-blue-50 px-4 py-1 text-xs sm:text-sm font-medium text-blue-600">
-              AI Interview Simulation
+          <div className="flex flex-col justify-center space-y-7">
+            {/* Badge */}
+            <span className="inline-flex w-fit rounded-full bg-slate-100 px-4 py-1 text-xs font-medium text-slate-600">
+              Interview & Real-World Speaking Practice
             </span>
 
-            <h1 className="mt-5 text-3xl sm:text-4xl lg:text-5xl font-semibold leading-tight text-slate-900">
-              Practice Interviews.
-              <span className="block text-blue-600">
-                Improve with AI Feedback.
-              </span>
+            {/* Heading */}
+            <h1 className="font-poppins text-4xl font-semibold leading-tight text-slate-900 sm:text-5xl xl:text-[3.5rem] whitespace-nowrap">
+              Learn to{" "}
+              <span className="text-blue-600">speak English</span>
             </h1>
 
-            <p className="mt-4 sm:mt-6 max-w-xl text-base sm:text-lg text-slate-600">
-              Simulate real interview questions, speak naturally, and receive
-              structured feedback on clarity, confidence, and pacing.
+            {/* Description */}
+            <p className="max-w-xl text-base text-slate-600 sm:text-lg">
+              VerveUni lets you practice speaking through realistic interview
+              and customer-call simulations — so you learn to respond clearly
+              when it actually matters.
             </p>
 
-            {/* CTA */}
-            <div className="mt-7 flex flex-col sm:flex-row gap-3 sm:gap-4">
-              <button className="rounded-xl bg-blue-600 px-6 py-3 text-base font-medium text-white hover:bg-blue-700 transition">
-                Start Free Simulation
-              </button>
-
-              <button className="rounded-xl border border-slate-200 px-6 py-3 text-base font-medium text-slate-700 hover:bg-slate-50 transition">
-                See How It Works
-              </button>
+            {/* Feature Pills */}
+            <div className="flex flex-wrap gap-3">
+              {[
+                "Voice-based practice",
+                "Real interview scenarios",
+                "No grammar or accent judgment",
+              ].map((item) => (
+                <span
+                  key={item}
+                  className="rounded-full bg-slate-100 px-4 py-1.5 text-sm text-slate-700"
+                >
+                  {item}
+                </span>
+              ))}
             </div>
 
-            {/* TRUST INDICATORS */}
-            <div className="mt-8 flex flex-wrap gap-x-6 gap-y-3 text-sm text-slate-500">
-              <div className="flex items-center gap-2">
-                <HiOutlineMicrophone className="text-blue-600" />
-                Voice-based
-              </div>
-              <div className="flex items-center gap-2">
-                <BsCameraVideo className="text-blue-600" />
-                Real questions
-              </div>
-              <div className="flex items-center gap-2">
-                <HiOutlineChartBar className="text-blue-600" />
-                Actionable insights
-              </div>
+            {/* CTAs */}
+            <div className="flex flex-col gap-4 sm:flex-row">
+              <button
+                onClick={() => navigate("/session")}
+                className="inline-flex items-center justify-center gap-2 rounded-xl bg-slate-900 px-6 py-3 text-sm font-medium text-white
+                transition-all duration-300 ease-out
+                hover:-translate-y-1 hover:shadow-lg"
+              >
+                <Mic size={18} />
+                Start a Session
+              </button>
+
+              <button
+                onClick={() => navigate("/about-us")}
+                className="inline-flex items-center justify-center rounded-xl border border-slate-300 px-6 py-3 text-sm font-medium text-slate-700
+                transition-all duration-300 ease-out
+                hover:-translate-y-1 hover:bg-slate-100"
+              >
+                How VerveUni Works
+              </button>
             </div>
           </div>
 
-          {/* RIGHT VISUAL */}
-          <div className="relative">
-            <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4 sm:p-6 shadow-sm">
-              
-              {/* HEADER */}
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm font-medium text-slate-800">
-                    Interview Session
-                  </p>
-                  <p className="text-xs text-slate-500">
-                    Behavioral Round
-                  </p>
-                </div>
-                <span className="rounded-full bg-blue-100 px-3 py-1 text-xs font-medium text-blue-600">
+          {/* RIGHT CONTENT */}
+          <div className="flex justify-center">
+            {/* Card covers dots underneath */}
+            <div
+              className="w-full max-w-xl rounded-3xl bg-white p-6 shadow-md
+              transition-all duration-300 ease-out
+              hover:-translate-y-1 hover:shadow-xl"
+            >
+              {/* Header */}
+              <div className="mb-6 flex items-center justify-between">
+                <p className="text-sm font-medium text-slate-700">
+                  Interview Simulation
+                </p>
+                <span className="rounded-full bg-emerald-100 px-3 py-1 text-xs font-medium text-emerald-700">
                   Live
                 </span>
               </div>
 
-              {/* QUESTION */}
-              <div className="mt-4 rounded-xl bg-white p-3 sm:p-4 border border-slate-200">
-                <p className="text-xs text-slate-500">Question</p>
-                <p className="mt-1 text-sm sm:text-base font-medium text-slate-800">
-                  Tell me about a challenge you faced and how you handled it.
-                </p>
-              </div>
+              <div className="space-y-5">
+                {/* Question */}
+                <div className="rounded-xl bg-slate-50 p-4">
+                  <p className="text-sm font-medium text-slate-800">
+                    Interviewer
+                  </p>
+                  <p className="mt-1 text-sm text-slate-600">
+                    “Tell me about a time you handled a difficult customer.”
+                  </p>
+                </div>
 
-              {/* FEEDBACK — MOBILE SAFE */}
-              <div className="mt-4 grid grid-cols-3 gap-2 sm:gap-3">
-                {[
-                  { label: "Clarity", value: "82%" },
-                  { label: "Confidence", value: "76%" },
-                  { label: "Pacing", value: "88%" },
-                ].map((item) => (
-                  <div
-                    key={item.label}
-                    className="rounded-xl bg-white p-2 sm:p-3 border border-slate-200 text-center"
-                  >
-                    <p className="text-[11px] sm:text-xs text-slate-500">
-                      {item.label}
-                    </p>
-                    <p className="mt-0.5 sm:mt-1 text-base sm:text-lg font-semibold text-blue-600">
-                      {item.value}
-                    </p>
+                {/* Speaking State */}
+                <div className="flex items-center gap-3 rounded-xl bg-blue-50 p-4">
+                  <div className="flex h-10 w-10 items-center justify-center rounded-full bg-blue-600 text-white">
+                    <UserCheck size={18} />
                   </div>
-                ))}
+
+                  <div className="flex-1">
+                    <p className="text-sm font-medium text-blue-900">
+                      You are responding…
+                    </p>
+
+                    {/* Animated Progress */}
+                    <div className="mt-2 h-2 w-full overflow-hidden rounded-full bg-blue-100">
+                      <div className="h-full w-2/3 rounded-full bg-blue-600 animate-progress" />
+                    </div>
+                  </div>
+                </div>
+
+                {/* Feedback */}
+                <div className="flex items-start gap-3 text-sm text-slate-600">
+                  <MessageSquare size={18} className="mt-0.5 text-blue-600" />
+                  <p>
+                    Feedback focuses on clarity, confidence, and flow — not
+                    grammar or accent.
+                  </p>
+                </div>
               </div>
             </div>
-
-            {/* SUBTLE ACCENT (HIDDEN ON MOBILE) */}
-            <div className="hidden sm:block absolute -z-10 -top-8 -right-8 h-40 w-40 rounded-full bg-blue-100 blur-3xl" />
           </div>
         </div>
       </div>
+
+      {/* Progress animation */}
+      <style>
+        {`
+          @keyframes progress {
+            0% { transform: translateX(-20%); }
+            50% { transform: translateX(0%); }
+            100% { transform: translateX(-20%); }
+          }
+          .animate-progress {
+            animation: progress 3s ease-in-out infinite;
+          }
+        `}
+      </style>
     </section>
   );
 }

@@ -2,16 +2,16 @@ import { memo, useState } from "react";
 import SessionLayout from "../session/SessionLayout";
 import { useSessionController } from "../session/useSessionController";
 
-import SessionIntro from "../session/SessionIntro";
-import QuestionPlayer from "../session/QuestionPlayer";
-import Recorder from "../session/Recorder";
+import IncomingCall from "../session/IncomingCall";
+import CXDashboard from "../session/CXDashboard";
 import Processing from "../session/Processing";
 import Result from "../session/Result";
 import PostSessionForm from "./PostSessionForm";
+import PostSessionIntro from "../session/PostSessionIntro";
+
 
 const QUESTIONS = [
   "/audio/interview-q1.mp3",
- 
   "/audio/interview-q5.mp3",
 ];
 
@@ -25,25 +25,25 @@ const Session = () => {
   return (
     <SessionLayout>
       {step === "INTRO" && (
-        <SessionIntro onStart={actions.startSession} />
+        <IncomingCall onAccept={actions.startSession} />
       )}
 
-      {step === "QUESTION" && (
-        <QuestionPlayer
+      {(step === "QUESTION" || step === "RECORDING") && (
+        <CXDashboard
+          mode={step === "QUESTION" ? "LISTENING" : "SPEAKING"}
           audioSrc={QUESTIONS[currentQuestionIndex]}
           questionIndex={currentQuestionIndex}
           totalQuestions={QUESTIONS.length}
-          onComplete={actions.onQuestionEnd}
+          onQuestionEnd={actions.onQuestionEnd}
+          onRecordingEnd={actions.onRecordingEnd}
         />
       )}
+      {step === "POST_INTRO" && (
+  <PostSessionIntro
+    onContinue={actions.goToPostForm}
+  />
+)}
 
-      {step === "RECORDING" && (
-        <Recorder
-          questionIndex={currentQuestionIndex}
-          totalQuestions={QUESTIONS.length}
-          onComplete={actions.onRecordingEnd}
-        />
-      )}
 
       {step === "POST_FORM" && (
         <PostSessionForm
