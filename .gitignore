@@ -27,3 +27,19 @@ dist-ssr
 backend/firebase_admin.json
 backend/__pycache__/
 backend/.venv/
+
+
+
+# Python
+backend/venv/
+__pycache__/
+*.pyc
+
+# Node
+node_modules/
+dist/
+
+# Secrets
+.env
+*.key
+*.pem
