@@ -1,0 +1,12 @@
+venv
+node_modules
+dist
+.git
+__pycache__
+*.pyc
+*.pyo
+*.pyd
+tmp_audio
+.env
+*.pem
+*.key
