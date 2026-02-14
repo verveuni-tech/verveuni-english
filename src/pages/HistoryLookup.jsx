@@ -6,7 +6,6 @@ import {
   where,
   getDocs,
 } from "firebase/firestore";
-
 import { db } from "../lib/firebase";
 
 export default function HistoryLookup() {
@@ -36,46 +35,54 @@ export default function HistoryLookup() {
       const snap = await getDocs(q);
 
       if (snap.empty) {
-        setError("No interview found with this ID. Please check and try again.");
+        setError(
+          "No interview found with this ID. Please verify and try again."
+        );
         setLoading(false);
         return;
       }
 
-      // There should only be one match
       const doc = snap.docs[0];
       navigate(`/feedback/${doc.id}`);
     } catch (err) {
       console.error(err);
-      setError("Something went wrong. Please try again.");
+      setError("Unable to retrieve interview. Please try again.");
       setLoading(false);
     }
   }
 
   return (
-    <div className="min-h-screen bg-slate-50 flex items-center justify-center px-4">
-      <div className="w-full max-w-md bg-white rounded-2xl shadow-lg p-6 sm:p-8">
-        <h1 className="text-2xl font-semibold text-slate-800 mb-2">
-          View Past Feedback
-        </h1>
-        <p className="text-slate-500 mb-6 text-sm">
-          Enter your Interview ID to access your previous interview feedback.
-        </p>
+    <div className="min-h-screen bg-black flex items-center justify-center px-6">
+      <div className="w-full max-w-md border border-white/10 rounded-xl p-8 text-white">
 
-        <form onSubmit={handleSearch}>
-          <label className="block text-sm font-medium text-slate-700 mb-2">
-            Interview ID
-          </label>
+        <div className="mb-10 text-center">
+          <h1 className="text-xl font-semibold">
+            Access Interview Report
+          </h1>
 
-          <input
-            type="text"
-            placeholder="e.g. VU-7K9P2A"
-            className="input input-bordered w-full font-mono tracking-wider"
-            value={interviewId}
-            onChange={(e) => setInterviewId(e.target.value)}
-          />
+          <p className="mt-3 text-sm text-white/60">
+            Enter your Interview ID to retrieve your evaluation report.
+          </p>
+        </div>
+
+        <form onSubmit={handleSearch} className="space-y-6">
+
+          <div>
+            <label className="block text-sm text-white/60 mb-2">
+              Interview ID
+            </label>
+
+            <input
+              type="text"
+              placeholder="e.g. VU-7K9P2A"
+              className="w-full bg-white/5 border border-white/10 rounded-md px-4 py-2 font-mono tracking-widest text-white placeholder-white/30 focus:outline-none focus:border-white/30"
+              value={interviewId}
+              onChange={(e) => setInterviewId(e.target.value)}
+            />
+          </div>
 
           {error && (
-            <p className="text-sm text-red-500 mt-3">
+            <p className="text-sm text-red-500">
               {error}
             </p>
           )}
@@ -83,15 +90,17 @@ export default function HistoryLookup() {
           <button
             type="submit"
             disabled={loading}
-            className="btn btn-primary w-full mt-6"
+            className="w-full bg-white text-black py-2 rounded-md font-medium hover:bg-white/90 transition"
           >
-            {loading ? "Searching…" : "View Feedback"}
+            {loading ? "Retrieving…" : "View Report"}
           </button>
+
         </form>
 
-        <div className="mt-6 text-xs text-slate-400 text-center">
-          Your Interview ID was shown after completing your interview.
+        <div className="mt-8 text-xs text-white/40 text-center">
+          Your Interview ID was displayed after completing your session.
         </div>
+
       </div>
     </div>
   );

@@ -5,6 +5,7 @@ def build_output_contract(
     raw_metrics,
     signals,
     scores,
+    levels,
     sr,
     extra: dict | None = None
 ):
@@ -34,12 +35,13 @@ def build_output_contract(
         "raw_metrics": raw_metrics,
         "signals": signals,
         "scores": scores,
+ "levels": levels,
 
         # -------------------------------------------------
         # Optional extended metadata (language, transcript, etc.)
         # -------------------------------------------------
         "extra": extra or {},
-
+       
         # -------------------------------------------------
         # System notes (for debugging / evolution)
         # -------------------------------------------------

@@ -1,5 +1,4 @@
 import { useEffect, useRef, useState } from "react";
-import "./styles/Recorder.css";
 
 const Recorder = ({ onComplete }) => {
   const mediaRecorderRef = useRef(null);
@@ -42,19 +41,22 @@ const Recorder = ({ onComplete }) => {
   }, [recordingTime]);
 
   return (
-    <div className="recorder">
-      <div className="recorder-instruction">
-        Speak clearly and continuously.
+    <div className="flex flex-col items-center space-y-6 text-center">
+
+      {/* Recording Indicator */}
+      <div className="flex items-center gap-3 text-red-500 uppercase tracking-wider text-sm">
+        <span className="w-3 h-3 bg-red-500 rounded-full animate-pulse" />
+        Recording
       </div>
 
-   <div
-  className={`recorder-timer ${
-    recordingTime <= 5 ? "ending" : ""
-  }`}
->
-  <span className="rec-dot" />
-  {recordingTime}s remaining
-</div>
+      {/* Timer */}
+      <div className="text-2xl font-semibold text-white">
+        {recordingTime}s
+      </div>
+
+      <p className="text-white/50 text-sm max-w-sm">
+        Respond naturally. Focus on clarity and confidence.
+      </p>
 
     </div>
   );

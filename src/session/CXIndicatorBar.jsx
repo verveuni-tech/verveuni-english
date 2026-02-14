@@ -1,5 +1,4 @@
 import { memo, useEffect, useState } from "react";
-import "./styles/CXIndicatorBar.css";
 
 const CXIndicatorBar = ({ mode, questionIndex, totalQuestions }) => {
   const [elapsed, setElapsed] = useState(0);
@@ -16,21 +15,34 @@ const CXIndicatorBar = ({ mode, questionIndex, totalQuestions }) => {
   const seconds = String(elapsed % 60).padStart(2, "0");
 
   return (
-    <div className={`cx-header ${mode.toLowerCase()}`}>
-      <div className="cx-header-left">
-        <span className="cx-status-dot" />
-        <span className="cx-status-text">
-          {mode === "LISTENING"
-            ? "Customer is speaking"
-            : "You are speaking"}
+    <div className="w-full max-w-3xl flex justify-between items-center text-sm text-white/60 border-b border-white/10 pb-4">
+
+      <div className="flex items-center gap-2 uppercase tracking-wider">
+        <span
+          className={`w-2 h-2 rounded-full ${
+            mode === "LISTENING"
+              ? questionIndex === 0
+                ? "bg-white/40"
+                : "bg-blue-400"
+              : "bg-red-500 animate-pulse"
+          }`}
+        />
+
+        {mode === "LISTENING"
+          ? questionIndex === 0
+            ? "Session Briefing"
+            : "Interviewer Speaking"
+          : "Your Response"}
+      </div>
+
+      <div className="flex items-center gap-3">
+        <span>{minutes}:{seconds}</span>
+        <span className="opacity-30">•</span>
+        <span>
+          Question {questionIndex} of {totalQuestions - 1}
         </span>
       </div>
 
-      <div className="cx-header-right">
-        <span className="cx-time">{minutes}:{seconds}</span>
-        <span className="cx-separator">•</span>
-        Question {questionIndex + 1} of {totalQuestions}
-      </div>
     </div>
   );
 };

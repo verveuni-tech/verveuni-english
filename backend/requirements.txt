@@ -14,3 +14,5 @@ numba
 soundfile
 audioread
 requests
+faster-whisper
+

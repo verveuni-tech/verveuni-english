@@ -14,9 +14,18 @@ export const useSessionController = (totalQuestions) => {
     setStep("QUESTION");
   }, []);
 
-  const onQuestionEnd = useCallback(() => {
-    setStep("RECORDING");
-  }, []);
+const onQuestionEnd = useCallback(() => {
+  // If intro just finished, skip recording
+  if (currentQuestionIndex === 0) {
+    setCurrentQuestionIndex(1);
+    setStep("QUESTION");
+    return;
+  }
+
+  // Otherwise normal flow
+  setStep("RECORDING");
+}, [currentQuestionIndex]);
+
 
   const onRecordingEnd = useCallback(
     (audioBlob) => {

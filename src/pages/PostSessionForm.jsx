@@ -2,25 +2,31 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { uploadToCloudinary } from "../lib/Cloudinary";
 import { saveSessionMetadata } from "../lib/sessionStore";
-import { saveUserProfile } from "../lib/userStore";
 import { generateInterviewId } from "../utils/interviewId";
+import CustomSelect from "../components/CustomSelect";
 
 export default function PostSessionForm({ finalAudioBlob }) {
+  const API_URL = import.meta.env.VITE_API_URL;
+
   const navigate = useNavigate();
 
-  const [name, setName] = useState("");
   const [email, setEmail] = useState("");
-  const [age, setAge] = useState("");
-  const [experience, setExperience] = useState("");
+  const [nervousness, setNervousness] = useState("");
+  const [repeatIntent, setRepeatIntent] = useState("");
+  const [realism, setRealism] = useState("");
 
-  const [status, setStatus] = useState("idle"); // idle | uploading | saving | analyzing
+  const [status, setStatus] = useState("idle");
   const [error, setError] = useState(null);
 
   async function submit(e) {
     e.preventDefault();
     setError(null);
 
-    // ✅ persistent anonymous user
+    if (!nervousness || !repeatIntent || !realism) {
+      setError("Please complete all questions.");
+      return;
+    }
+
     let userId = localStorage.getItem("verve_user_id");
     if (!userId) {
       userId = crypto.randomUUID();
@@ -33,36 +39,38 @@ export default function PostSessionForm({ finalAudioBlob }) {
     try {
       setStatus("uploading");
 
-      const upload = await uploadToCloudinary(finalAudioBlob, sessionId);
+      const upload = await uploadToCloudinary(
+        finalAudioBlob,
+        sessionId
+      );
 
       setStatus("saving");
 
-      // ✅ save user profile (NEW collection)
-      await saveUserProfile({
-        userId,
-        name,
-        email,
-        age,
-        experience,
-      });
-
-      // ✅ save session metadata (backend-safe)
       await saveSessionMetadata({
         userId,
         sessionId,
         publicId,
         audioUrl: upload.url,
         duration: upload.duration,
-        questionCount: 2,
+        questionCount: 3,
+        validation: {
+          nervousness,
+          repeatIntent,
+          realism,
+        },
       });
 
       setStatus("analyzing");
 
-      const res = await fetch("http://127.0.0.1:8000/analyze-session", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ sessionId }),
-      });
+     const res = await fetch(
+  `${API_URL}/analyze-session`,
+
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ sessionId }),
+        }
+      );
 
       if (!res.ok) throw new Error("Analysis failed");
 
@@ -75,69 +83,68 @@ export default function PostSessionForm({ finalAudioBlob }) {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-slate-50 px-4">
+    <div className="min-h-screen flex items-center justify-center bg-black px-6">
       <form
         onSubmit={submit}
-        className="w-full max-w-lg bg-white rounded-2xl shadow-lg p-6 sm:p-8"
+        className="w-full max-w-md border border-white/10 rounded-xl p-8 space-y-6 text-white"
       >
-        <h2 className="text-2xl font-semibold text-slate-800 mb-1">
-          Get Your Interview Feedback
+        <h2 className="text-xl font-semibold">
+          Submit for Evaluation
         </h2>
-        <p className="text-slate-500 mb-6">
-          Enter your details to generate personalized insights.
-        </p>
 
-        <div className="grid gap-4">
-          <input
-            className="input input-bordered w-full"
-            placeholder="Full Name"
-            required
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-          />
+        <input
+          type="email"
+          required
+          placeholder="Email address"
+          className="w-full bg-white/5 border border-white/10 rounded-md px-4 py-2 text-white placeholder-white/40"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+        />
 
-          <input
-            type="email"
-            className="input input-bordered w-full"
-            placeholder="Email Address"
-            required
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-          />
+        <CustomSelect
+          label="How nervous did you feel?"
+          options={[
+            "Very nervous",
+            "Slightly nervous",
+            "Not nervous",
+          ]}
+          value={nervousness}
+          onChange={setNervousness}
+        />
 
-          <input
-            className="input input-bordered w-full"
-            placeholder="Age"
-            value={age}
-            onChange={(e) => setAge(e.target.value)}
-          />
+        <CustomSelect
+          label="Would you practice again tomorrow?"
+          options={["Yes", "Maybe", "No"]}
+          value={repeatIntent}
+          onChange={setRepeatIntent}
+        />
 
-          <textarea
-            className="textarea textarea-bordered w-full"
-            placeholder="How was your experience?"
-            rows={3}
-            value={experience}
-            onChange={(e) => setExperience(e.target.value)}
-          />
-        </div>
+        <CustomSelect
+          label="Did this feel realistic?"
+          options={["Yes", "Somewhat", "No"]}
+          value={realism}
+          onChange={setRealism}
+        />
 
         {status !== "idle" && (
-          <p className="mt-4 text-sm text-slate-600">
+          <p className="text-sm text-white/60">
             {status === "uploading" && "Uploading audio…"}
-            {status === "saving" && "Saving your session…"}
-            {status === "analyzing" && "Analyzing your responses…"}
+            {status === "saving" && "Saving session…"}
+            {status === "analyzing" && "Analyzing responses…"}
           </p>
         )}
 
         {error && (
-          <p className="text-sm text-red-500 mt-3">{error}</p>
+          <p className="text-sm text-red-500">{error}</p>
         )}
 
         <button
-          className="btn btn-primary w-full mt-6"
           disabled={status !== "idle"}
+          className="w-full bg-white text-black py-2 rounded-md font-medium hover:bg-white/90 transition"
         >
-          {status === "idle" ? "Generate Feedback" : "Processing…"}
+          {status === "idle"
+            ? "Generate Feedback"
+            : "Processing..."}
         </button>
       </form>
     </div>

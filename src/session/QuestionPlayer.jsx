@@ -1,5 +1,4 @@
 import { useEffect, useRef } from "react";
-import "./styles/QuestionPlayer.css";
 
 const QuestionPlayer = ({ audioSrc, onComplete }) => {
   const audioRef = useRef(null);
@@ -37,13 +36,19 @@ const QuestionPlayer = ({ audioSrc, onComplete }) => {
   }, [audioSrc, onComplete]);
 
   return (
-    <div className="question-player">
-      <p className="instruction">
-        Please listen carefully.
-        Do not speak yet.
+    <div className="flex flex-col items-center space-y-6 text-center">
+
+      <p className="text-white/60 text-sm uppercase tracking-wider">
+        Listen carefully
       </p>
 
+      <div className="flex items-center gap-3 text-blue-400 text-sm">
+        <span className="w-2 h-2 bg-blue-400 rounded-full animate-pulse" />
+        Interviewer speaking...
+      </div>
+
       <audio ref={audioRef} src={audioSrc} preload="auto" />
+
     </div>
   );
 };

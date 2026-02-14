@@ -13,7 +13,8 @@ from scoring.rules import interpret_metrics
 from scoring.scores import (
     confidence_score,
     fluency_score,
-    pause_control_score
+    pause_control_score,
+    level_from_score,   # <-- NEW IMPORT
 )
 
 from transcription.transcribe_audio import transcribe_audio
@@ -62,25 +63,24 @@ def analyze_session(audio_url: str):
         }
 
         # ---------------------------------------------------------
-        # 5. Fluency signals (RULE-BASED, AUDIO ONLY)
+        # 5. Lightweight signals (NOT levels anymore)
         # ---------------------------------------------------------
         signals = interpret_metrics(raw_metrics)
 
         # ---------------------------------------------------------
-        # 6. Fluency scores (AUDIO ONLY)
+        # 6. Audio-based scores
         # ---------------------------------------------------------
-        fluency_scores = {
-            "confidence": confidence_score(raw_metrics),
-            "fluency": fluency_score(raw_metrics),
-            "pause_control": pause_control_score(raw_metrics),
-        }
+        confidence = confidence_score(raw_metrics)
+        fluency = fluency_score(raw_metrics)
+        pause_control = pause_control_score(raw_metrics)
 
         fluency_score_final = round(
-            sum(fluency_scores.values()) / len(fluency_scores), 2
+            (confidence + fluency + pause_control) / 3,
+            2
         )
 
         # ---------------------------------------------------------
-        # 7. LANGUAGE LAYER (TRANSCRIPTION + ENGLISH VALIDITY)
+        # 7. LANGUAGE LAYER (TRANSCRIPTION + VALIDITY)
         # ---------------------------------------------------------
         transcription = transcribe_audio(wav_path)
 
@@ -90,17 +90,19 @@ def analyze_session(audio_url: str):
         )
 
         english_score = round(
-            english_metrics["english_ratio"] * 100, 2
+            english_metrics["english_ratio"] * 100,
+            2
         )
 
         # ---------------------------------------------------------
-        # 8. FINAL SCORE (ANTI-CHEAT RULES APPLIED)
+        # 8. FINAL SCORE (ANTI-CHEAT RULES)
         # ---------------------------------------------------------
         final_score = round(
-            fluency_score_final * 0.6 + english_score * 0.4, 2
+            fluency_score_final * 0.6 + english_score * 0.4,
+            2
         )
 
-        # Hard caps (anti-bypass)
+        # Hard caps
         if english_metrics["english_ratio"] < 0.5:
             final_score = min(final_score, 30)
 
@@ -108,16 +110,28 @@ def analyze_session(audio_url: str):
             final_score = min(final_score, 40)
 
         # ---------------------------------------------------------
-        # 9. FINAL OUTPUT CONTRACT (BUILT ONCE)
+        # 9. Level mapping (SINGLE SOURCE OF TRUTH)
+        # ---------------------------------------------------------
+        levels = {
+            "confidence_level": level_from_score(confidence),
+            "fluency_level": level_from_score(fluency_score_final),
+            "english_level": level_from_score(english_score),
+            "final_level": level_from_score(final_score),
+        }
+
+        # ---------------------------------------------------------
+        # 10. Final output contract
         # ---------------------------------------------------------
         return build_output_contract(
             raw_metrics=raw_metrics,
             signals=signals,
             scores={
+                "confidence": confidence,
                 "fluency": fluency_score_final,
                 "english": english_score,
                 "final": final_score,
             },
+            levels=levels,  # <-- NEW
             sr=sr,
             extra={
                 "transcript": transcription["transcript"],
@@ -129,7 +143,7 @@ def analyze_session(audio_url: str):
 
     finally:
         # ---------------------------------------------------------
-        # 10. Guaranteed cleanup of temp WAV
+        # Guaranteed cleanup
         # ---------------------------------------------------------
         if wav_path and os.path.exists(wav_path):
             os.remove(wav_path)

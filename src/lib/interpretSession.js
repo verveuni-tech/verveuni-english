@@ -1,137 +1,113 @@
 /**
  * Converts backend analysis output into
- * human-readable feedback cards.
+ * psychologically safe, coaching-style feedback.
  *
- * This file is the ONLY place where meaning,
- * judgment, and explanation logic lives.
+ * Focus: clarity, confidence, repeat usage.
  */
 export function interpretSession(analysis) {
   if (!analysis) return [];
 
   const insights = [];
 
-  const { scores, raw_metrics, extra } = analysis;
+  const { scores, extra } = analysis;
 
   const fluencyScore = scores?.fluency ?? 0;
-  const englishScore = scores?.english ?? 0;
-  const finalScore = scores?.final ?? 0;
-
   const englishRatio = extra?.english_ratio ?? 0;
   const wordCount = extra?.word_count ?? 0;
-  const language = extra?.language ?? "unknown";
 
-  // ---------------------------------------------------
-  // 1. Fluency Interpretation (AUDIO-BASED)
-  // ---------------------------------------------------
+  // ----------------------------------------
+  // 1️⃣ Strength Card
+  // ----------------------------------------
+
   if (fluencyScore >= 75) {
     insights.push({
-      id: "fluency-strong",
-      title: "Strong Speaking Fluency",
+      id: "strength-fluency",
+      title: "What You Did Well",
       interpretation:
-        "You were able to speak smoothly with minimal hesitation, which helps the listener stay engaged.",
-      evidence: `Fluency score: ${fluencyScore}`,
-      suggestion:
-        "Maintain this flow while focusing on structuring answers with a clear start and finish.",
+        "You maintained a steady speaking flow with minimal hesitation.",
+      suggestion: null,
     });
-  } else if (fluencyScore >= 50) {
+  } else if (englishRatio >= 0.75) {
     insights.push({
-      id: "fluency-moderate",
-      title: "Moderate Speaking Fluency",
+      id: "strength-english",
+      title: "What You Did Well",
       interpretation:
-        "You were able to continue speaking, but some pauses may have disrupted clarity.",
-      evidence: `Fluency score: ${fluencyScore}`,
-      suggestion:
-        "Practice answering questions out loud without stopping for the first 10 seconds.",
+        "You stayed consistent in English throughout your response.",
+      suggestion: null,
     });
   } else {
     insights.push({
-      id: "fluency-low",
-      title: "Frequent Hesitation",
+      id: "strength-effort",
+      title: "What You Did Well",
       interpretation:
-        "Your response included frequent pauses, which can make answers harder to follow.",
-      evidence: `Fluency score: ${fluencyScore}`,
-      suggestion:
-        "Try rehearsing short answers and gradually increasing length while staying continuous.",
+        "You attempted the full response and stayed engaged throughout the session.",
+      suggestion: null,
     });
   }
 
-  // ---------------------------------------------------
-  // 2. English Usage / Validity Interpretation
-  // ---------------------------------------------------
-  if (englishRatio < 0.5) {
+  // ----------------------------------------
+  // 2️⃣ Area to Improve
+  // ----------------------------------------
+
+  if (fluencyScore < 50) {
     insights.push({
-      id: "english-very-low",
-      title: "Limited English Usage",
+      id: "improve-hesitation",
+      title: "What Slowed You Down",
       interpretation:
-        "A large portion of your response was not in English, which affects how well it can be evaluated.",
-      evidence: `English usage: ${Math.round(englishRatio * 100)}%`,
+        "Frequent pauses may have made your response harder to follow.",
       suggestion:
-        "Try to stay in English throughout your response, even if it feels slower at first.",
+        "Try speaking continuously for at least 8–10 seconds before slowing down.",
+    });
+  } else if (fluencyScore < 75) {
+    insights.push({
+      id: "improve-flow",
+      title: "What Slowed You Down",
+      interpretation:
+        "Some hesitation interrupted the natural flow of your answer.",
+      suggestion:
+        "Practice beginning your answer immediately without overthinking the first sentence.",
     });
   } else if (englishRatio < 0.75) {
     insights.push({
-      id: "english-mixed",
-      title: "Mixed Language Usage",
+      id: "improve-language",
+      title: "What Slowed You Down",
       interpretation:
-        "Your response included both English and another language, which reduced clarity.",
-      evidence: `English usage: ${Math.round(englishRatio * 100)}%`,
+        "Switching languages reduced clarity during your response.",
       suggestion:
-        "Aim to complete full thoughts in English before switching languages.",
+        "Try completing full thoughts in English before switching languages.",
+    });
+  } else if (wordCount < 40) {
+    insights.push({
+      id: "improve-length",
+      title: "What Slowed You Down",
+      interpretation:
+        "Your response was short, which limits depth and clarity.",
+      suggestion:
+        "Aim for 40–60 words to provide more complete answers.",
     });
   } else {
     insights.push({
-      id: "english-strong",
-      title: "Clear English Communication",
+      id: "improve-structure",
+      title: "What Slowed You Down",
       interpretation:
-        "Most of your response was delivered in English and was understandable.",
-      evidence: `English score: ${englishScore}`,
+        "Your response could be clearer with a more defined beginning and conclusion.",
       suggestion:
-        "Focus on expanding vocabulary to make answers more precise and expressive.",
+        "Try structuring answers with a clear introduction and closing sentence.",
     });
   }
 
-  // ---------------------------------------------------
-  // 3. Answer Length / Effort Transparency
-  // ---------------------------------------------------
-  if (wordCount < 40) {
-    insights.push({
-      id: "answer-too-short",
-      title: "Very Short Response",
-      interpretation:
-        "Your answer was quite short, which limits how much feedback can be generated.",
-      evidence: `Word count: ${wordCount}`,
-      suggestion:
-        "Aim for at least 40–60 words to receive more detailed feedback.",
-    });
-  }
+  // ----------------------------------------
+  // 3️⃣ Next Session Focus
+  // ----------------------------------------
 
-  // ---------------------------------------------------
-  // 4. Transparency Card (Anti-cheat, Trust Builder)
-  // ---------------------------------------------------
   insights.push({
-    id: "scoring-transparency",
-    title: "How Your Score Was Calculated",
+    id: "next-focus",
+    title: "Next Session Focus",
     interpretation:
-      "Your final score is based on both how smoothly you spoke and how consistently you used English.",
-    evidence: `Fluency: ${fluencyScore}, English: ${englishScore}, Final: ${finalScore}`,
+      "In your next attempt, concentrate on one improvement area rather than trying to fix everything at once.",
     suggestion:
-      "Improving either fluency or English usage will raise your overall score.",
+      "Start speaking immediately and maintain flow for the first 10 seconds before refining structure.",
   });
-
-  // ---------------------------------------------------
-  // 5. Language Disclosure (Soft, Non-Punitive)
-  // ---------------------------------------------------
-  if (language !== "en" && language !== "unknown") {
-    insights.push({
-      id: "language-detected",
-      title: "Detected Speaking Language",
-      interpretation:
-        "We detected that your response included a language other than English.",
-      evidence: `Detected language: ${language}`,
-      suggestion:
-        "For English-focused practice, try responding fully in English.",
-    });
-  }
 
   return insights;
 }

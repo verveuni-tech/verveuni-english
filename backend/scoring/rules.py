@@ -1,17 +1,16 @@
 def interpret_metrics(raw):
-    confidence = "low"
-    if raw["average_energy"] > 0.03 and raw["energy_variance"] < 0.015:
-        confidence = "high"
-    elif raw["average_energy"] > 0.02:
-        confidence = "medium"
+    """
+    Only lightweight behavioral flags here.
+    Score-based levels will be derived from scores.py.
+    """
 
-    fluency = "low"
-    if raw["speaking_ratio"] > 0.65 and raw["pause_count"] <= 4:
-        fluency = "high"
-    elif raw["speaking_ratio"] > 0.5:
-        fluency = "medium"
+    confidence_flag = "low"
+
+    if raw["average_energy"] > 0.03 and raw["energy_variance"] < 0.02:
+        confidence_flag = "strong"
+    elif raw["average_energy"] > 0.02:
+        confidence_flag = "developing"
 
     return {
-        "confidence_level": confidence,
-        "fluency_level": fluency
+        "confidence_flag": confidence_flag
     }

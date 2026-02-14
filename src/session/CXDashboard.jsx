@@ -1,10 +1,6 @@
-import { Row, Col, Card } from "antd";
 import CXIndicatorBar from "./CXIndicatorBar";
-import InfoGrid from "./InfoGrid";
 import QuestionPlayer from "./QuestionPlayer";
 import Recorder from "./Recorder";
-
-import "./styles/CXDashboard.css";
 
 const CXDashboard = ({
   mode,
@@ -15,52 +11,59 @@ const CXDashboard = ({
   onRecordingEnd,
 }) => {
   return (
-    <div className="cx-dashboard-root">
-      {/* Global call / speaking state */}
+    <div className="flex flex-col items-center justify-center space-y-12 text-center">
+
       <CXIndicatorBar
         mode={mode}
         questionIndex={questionIndex}
         totalQuestions={totalQuestions}
       />
 
-      <div className="cx-dashboard-body">
-        <Row gutter={[20, 20]}>
-          {/* Customer context */}
-          <Col xs={24} lg={16}>
-            <Card
-              title="Customer Information"
-              className="cx-card"
-            >
-              <InfoGrid />
-            </Card>
-          </Col>
+      <div className="w-full max-w-xl space-y-8">
 
-          {/* Action panel */}
-          <Col xs={24} lg={8}>
-            <Card
-              title={mode === "LISTENING" ? "Listening" : "Your Response"}
-              className="cx-card action-card"
-            >
-              <div
-                className={`cx-action-panel ${mode.toLowerCase()}`}
-              >
-                {mode === "LISTENING" && (
-                  <QuestionPlayer
-                    audioSrc={audioSrc}
-                    onComplete={onQuestionEnd}
-                  />
-                )}
+        {mode === "LISTENING" && (
+          <div className="space-y-6">
 
-                {mode === "SPEAKING" && (
-                  <Recorder
-                    onComplete={onRecordingEnd}
-                  />
-                )}
-              </div>
-            </Card>
-          </Col>
-        </Row>
+            <h2 className="text-xl text-white/80">
+              {questionIndex === 0
+                ? "Interview Briefing"
+                : "Interview Question"}
+            </h2>
+
+            <QuestionPlayer
+              audioSrc={audioSrc}
+              onComplete={onQuestionEnd}
+            />
+
+            <p className="text-white/50 text-sm">
+              {questionIndex === 0
+                ? "Please listen carefully before the session begins."
+                : "Listen carefully. You will respond immediately after."}
+            </p>
+
+          </div>
+        )}
+
+        {mode === "SPEAKING" && (
+          <div className="space-y-6">
+
+            
+
+            <h2 className="text-xl text-white">
+              Your Response
+            </h2>
+
+            <Recorder onComplete={onRecordingEnd} />
+
+            <p className="text-white/50 text-sm">
+              Speak clearly and confidently. There are no retries.
+            </p>
+
+          </div>
+        )}
+
       </div>
+
     </div>
   );
 };

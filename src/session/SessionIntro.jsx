@@ -2,27 +2,35 @@ import { memo } from "react";
 
 const SessionIntro = ({ onStart }) => {
   return (
-    <div className="max-w-xl mx-auto bg-white rounded-2xl shadow-lg p-10 text-center">
-      <h1 className="text-2xl font-semibold mb-4">
-        Incoming customer call
-      </h1>
+    <div className="text-center space-y-8">
+      
+      <div className="space-y-3">
+        <p className="text-sm uppercase tracking-wider text-white/50">
+          Incoming Interview
+        </p>
 
-      <p className="text-slate-600 mb-8">
-        You are about to receive a simulated customer support call.
-        Respond clearly and professionally in English.
-      </p>
+        <h1 className="text-3xl font-semibold">
+          Software Engineering Intern
+        </h1>
 
-      <div className="flex justify-center mb-8">
-        <div className="w-28 h-28 rounded-full bg-blue-600 text-white flex items-center justify-center text-3xl font-bold animate-pulse">
-          M
+        <p className="text-white/60 max-w-md mx-auto">
+          You are about to begin a live interview simulation.
+          Respond clearly and professionally in English.
+        </p>
+      </div>
+
+      {/* Minimal Avatar Placeholder */}
+      <div className="flex justify-center">
+        <div className="w-24 h-24 rounded-full border border-white/20 flex items-center justify-center text-lg text-white/50">
+          HR
         </div>
       </div>
 
       <button
         onClick={onStart}
-        className="px-8 py-3 rounded-full bg-green-600 text-white font-medium hover:bg-green-700 transition"
+        className="px-8 py-3 rounded-md bg-white text-black font-medium hover:bg-white/90 transition"
       >
-        Accept Call
+        Begin Interview
       </button>
     </div>
   );

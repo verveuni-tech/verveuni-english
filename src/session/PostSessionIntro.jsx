@@ -1,25 +1,25 @@
 import { memo } from "react";
-import "./styles/PostSessionIntro.css";
 
 const PostSessionIntro = ({ onContinue }) => {
   return (
-    <div className="post-intro">
-      <h2 className="post-intro-title">
-        Session completed
+    <div className="text-center space-y-6">
+
+      <h2 className="text-2xl font-semibold">
+        Interview Completed
       </h2>
 
-      <p className="post-intro-text">
-        Thank you for attending the practice session.
-        Please fill in this short form and we’ll prepare
-        your speaking feedback.
+      <p className="text-white/60 max-w-md mx-auto">
+        Your responses have been recorded.
+        Complete the short form below and we’ll analyze your interview performance.
       </p>
 
       <button
-        className="post-intro-btn"
         onClick={onContinue}
+        className="px-6 py-3 bg-white text-black rounded-md font-medium hover:bg-white/90 transition"
       >
         Continue
       </button>
+
     </div>
   );
 };

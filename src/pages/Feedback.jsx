@@ -22,7 +22,6 @@ export default function FeedbackPage() {
       const data = snap.data();
       setSession(data);
 
-      // Persist interpreted feedback ONCE (snapshot-style)
       if (
         data.status === "completed" &&
         data.analysis &&
@@ -36,20 +35,22 @@ export default function FeedbackPage() {
     return () => unsub();
   }, [sessionId]);
 
-  // -------------------------------
-  // Loading / processing state
-  // -------------------------------
+  // ---------------------------------------
+  // Loading state (formal tone)
+  // ---------------------------------------
   if (!session || session.status !== "completed") {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-slate-50">
-        <p className="text-slate-600">
-          Analyzing your session…
-        </p>
+      <div className="min-h-screen bg-black flex items-center justify-center text-white">
+        <div className="text-center space-y-4">
+          <div className="w-3 h-3 bg-white rounded-full animate-pulse mx-auto" />
+          <p className="text-white/70 text-sm">
+            Generating evaluation report...
+          </p>
+        </div>
       </div>
     );
   }
 
-  // Prefer saved feedback; fallback to live interpretation
   const insights =
     session.interpretedFeedback ??
     interpretSession(session.analysis);
@@ -57,23 +58,27 @@ export default function FeedbackPage() {
   const scores = session.analysis?.scores;
 
   return (
-    <div className="min-h-screen bg-slate-50 px-4 py-10">
+    <div className="min-h-screen bg-black text-white px-6 py-16">
       <div className="max-w-3xl mx-auto">
 
-        {/* Session ID */}
-        <div className="mb-8 text-center bg-white rounded-xl shadow-sm p-4">
-          <p className="text-xs uppercase tracking-wide text-slate-500">
-            Session ID
+        {/* Report Header */}
+        <div className="border-b border-white/10 pb-8 mb-12 text-center">
+          <p className="text-xs uppercase tracking-wider text-white/40">
+            Interview Evaluation Report
           </p>
-          <p className="mt-1 font-mono text-lg text-slate-800">
+
+          <p className="mt-4 font-mono text-lg tracking-widest">
             {session.publicId || sessionId}
           </p>
-          <p className="mt-1 text-xs text-slate-400">
-            Save this ID to access your feedback later
+
+          <p className="mt-2 text-xs text-white/40">
+            Save this ID to access your report later
           </p>
         </div>
 
+        {/* Feedback Body */}
         <FeedbackUI insights={insights} scores={scores} />
+
       </div>
     </div>
   );

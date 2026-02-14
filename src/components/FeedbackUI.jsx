@@ -1,75 +1,111 @@
 import { memo } from "react";
 
-function FeedbackUI({ insights = [], scores }) {
+function FeedbackUI({ insights = [], scores, levels }) {
   return (
-    <div className="bg-slate-50">
-      <div className="mx-auto max-w-4xl">
+    <div className="min-h-screen bg-black text-white px-6 py-16">
+      <div className="mx-auto max-w-3xl">
 
+        {/* -------------------------------- */}
         {/* Header */}
-        <h1 className="text-3xl font-semibold text-slate-900 text-center">
-          Your Speaking Feedback
-        </h1>
+        {/* -------------------------------- */}
+        <div className="text-center mb-14">
+          <h1 className="text-2xl font-semibold">
+            Interview Evaluation Report
+          </h1>
 
-        <p className="mt-2 text-center text-slate-600">
-          Based on how you spoke during this session
-        </p>
+          <p className="mt-3 text-white/60 text-sm">
+            Analysis based on your speaking behavior during this session.
+          </p>
+        </div>
 
+        {/* -------------------------------- */}
         {/* Score Summary */}
+        {/* -------------------------------- */}
         {scores && (
-          <div className="mt-10 grid grid-cols-3 gap-4">
-            <ScoreCard label="Fluency" value={scores.fluency} />
-            <ScoreCard label="English" value={scores.english} />
-            <ScoreCard label="Final" value={scores.final} />
+          <div className="grid grid-cols-3 gap-6 mb-16 text-center border-y border-white/10 py-6">
+            <ScoreMetric
+              label="Fluency"
+              value={scores.fluency}
+              level={levels?.fluency_level}
+            />
+            <ScoreMetric
+              label="English Usage"
+              value={scores.english}
+              level={levels?.english_level}
+            />
+            <ScoreMetric
+              label="Overall"
+              value={scores.final}
+              level={levels?.final_level}
+            />
           </div>
         )}
 
-        {/* Feedback Cards */}
-        <div className="mt-12 space-y-6">
+        {/* -------------------------------- */}
+        {/* Feedback Sections */}
+        {/* -------------------------------- */}
+        <div className="space-y-10">
           {insights.map((item) => (
             <div
               key={item.id}
-              className="rounded-2xl bg-white border border-slate-200 p-6 shadow-sm"
+              className="border border-white/10 rounded-lg p-6"
             >
-              <h3 className="text-lg font-semibold text-slate-900">
+              <h3 className="text-lg font-medium">
                 {item.title}
               </h3>
 
-              <p className="mt-3 text-slate-700 leading-relaxed">
+              <p className="mt-4 text-white/70 leading-relaxed text-sm">
                 {item.interpretation}
               </p>
 
-              <div className="mt-4 rounded-lg bg-slate-100 px-4 py-2 text-sm text-slate-600">
-                <span className="font-medium">What we noticed:</span>{" "}
-                {item.evidence}
-              </div>
+              {item.evidence && (
+                <div className="mt-5 text-xs text-white/50">
+                  Observed: {item.evidence}
+                </div>
+              )}
 
-              <div className="mt-4 rounded-lg border-l-4 border-blue-500 bg-blue-50 px-4 py-3">
-                <p className="text-sm text-blue-900">
-                  <span className="font-semibold">Suggestion:</span>{" "}
-                  {item.suggestion}
-                </p>
-              </div>
+              {item.suggestion && (
+                <div className="mt-6 border-l-2 border-white/30 pl-4">
+                  <p className="text-sm text-white/80">
+                    {item.suggestion}
+                  </p>
+                </div>
+              )}
             </div>
           ))}
 
           {insights.length === 0 && (
-            <p className="text-center text-slate-500">
-              We didn’t detect any strong speaking patterns in this session.
+            <p className="text-center text-white/50 text-sm">
+              No strong speaking patterns were detected in this session.
             </p>
           )}
         </div>
+
       </div>
     </div>
   );
 }
 
-function ScoreCard({ label, value }) {
+/* -------------------------------- */
+/* Score Metric Component */
+/* -------------------------------- */
+
+function ScoreMetric({ label, value, level }) {
   return (
-    <div className="bg-white rounded-xl p-4 text-center shadow-sm">
-      <p className="text-sm text-slate-500">{label}</p>
-      <p className="mt-1 text-2xl font-bold text-slate-900">
+    <div>
+      <p className="text-xs uppercase tracking-wider text-white/40">
+        {label}
+      </p>
+
+      <p className="mt-2 text-xl font-semibold">
         {Math.round(value)}
       </p>
+
+      {level && (
+        <p className="mt-1 text-xs text-white/50 capitalize">
+          {level}
+        </p>
+      )}
     </div>
   );
 }
