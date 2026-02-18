@@ -36,7 +36,7 @@ export default function FeedbackPage() {
   }, [sessionId]);
 
   // ---------------------------------------
-  // Loading state (formal tone)
+  // Loading state
   // ---------------------------------------
   if (!session || session.status !== "completed") {
     return (
@@ -51,11 +51,14 @@ export default function FeedbackPage() {
     );
   }
 
+  const analysis = session.analysis ?? {};
+
   const insights =
     session.interpretedFeedback ??
-    interpretSession(session.analysis);
+    interpretSession(analysis);
 
-  const scores = session.analysis?.scores;
+  const scores = analysis.scores ?? {};
+  const levels = analysis.levels ?? {};
 
   return (
     <div className="min-h-screen bg-black text-white px-6 py-16">
@@ -77,7 +80,11 @@ export default function FeedbackPage() {
         </div>
 
         {/* Feedback Body */}
-        <FeedbackUI insights={insights} scores={scores} />
+        <FeedbackUI
+          insights={insights}
+          scores={scores}
+          levels={levels}
+        />
 
       </div>
     </div>

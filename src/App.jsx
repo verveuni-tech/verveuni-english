@@ -4,6 +4,7 @@ import PostSessionForm from "./pages/PostSessionForm";
 
 import FeedbackPage from "./pages/Feedback";
 import HistoryLookup from "./pages/HistoryLookup";
+import InternalSessionsPage from "./pages/InternalSessionsPage";
 
 
 export default function App() {
@@ -17,7 +18,8 @@ export default function App() {
         <Route path="/form" element={<PostSessionForm />} />
          <Route path="/feedback/:sessionId" element={<FeedbackPage />} />
           <Route path="/history" element={<HistoryLookup />} />
-       
+       <Route path="/internal/sessions" element={<InternalSessionsPage />} />
+
       </Routes>
      
 

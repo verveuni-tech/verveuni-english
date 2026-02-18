@@ -1,112 +1,196 @@
 /**
  * Converts backend analysis output into
- * psychologically safe, coaching-style feedback.
+ * adaptive, metric-aware coaching feedback.
  *
- * Focus: clarity, confidence, repeat usage.
+ * Compatible with v3 scoring architecture.
  */
+
 export function interpretSession(analysis) {
   if (!analysis) return [];
 
   const insights = [];
 
-  const { scores, extra } = analysis;
+  const { scores = {}, extra = {}, raw_metrics = {} } = analysis;
 
-  const fluencyScore = scores?.fluency ?? 0;
-  const englishRatio = extra?.english_ratio ?? 0;
-  const wordCount = extra?.word_count ?? 0;
+  // ✅ v3-safe score mapping with fallback
+  const continuityScore =
+    scores.continuity ?? scores.fluency ?? 0;
 
-  // ----------------------------------------
-  // 1️⃣ Strength Card
-  // ----------------------------------------
+  const vocalStabilityScore =
+    scores.vocal_stability ?? scores.confidence ?? 0;
 
-  if (fluencyScore >= 75) {
+  const languageControlScore =
+    scores.language_control ?? scores.english ?? 0;
+
+  const finalScore = scores.final ?? 0;
+
+  const englishRatio = extra.english_ratio ?? 0;
+  const wordCount = extra.word_count ?? 0;
+
+  const pauseCount = raw_metrics.pause_count ?? 0;
+  const longestPause = raw_metrics.longest_pause ?? 0;
+  const speakingRatio = raw_metrics.speaking_ratio ?? 0;
+
+  // --------------------------------------------------
+  // 1️⃣ Strength Card (Adaptive)
+  // --------------------------------------------------
+
+  if (continuityScore >= 80) {
     insights.push({
-      id: "strength-fluency",
+      id: "strength-continuity",
       title: "What You Did Well",
       interpretation:
-        "You maintained a steady speaking flow with minimal hesitation.",
+        "You maintained strong speaking continuity with minimal disruption.",
       suggestion: null,
     });
-  } else if (englishRatio >= 0.75) {
+
+  } else if (vocalStabilityScore >= 80) {
     insights.push({
-      id: "strength-english",
+      id: "strength-vocal",
       title: "What You Did Well",
       interpretation:
-        "You stayed consistent in English throughout your response.",
+        "Your vocal delivery was steady and confident throughout the response.",
       suggestion: null,
     });
+
+  } else if (languageControlScore >= 85) {
+    insights.push({
+      id: "strength-language",
+      title: "What You Did Well",
+      interpretation:
+        "You maintained consistent English usage throughout your answer.",
+      suggestion: null,
+    });
+
+  } else if (wordCount >= 60) {
+    insights.push({
+      id: "strength-depth",
+      title: "What You Did Well",
+      interpretation:
+        "You provided sufficient depth and explanation in your response.",
+      suggestion: null,
+    });
+
   } else {
     insights.push({
       id: "strength-effort",
       title: "What You Did Well",
       interpretation:
-        "You attempted the full response and stayed engaged throughout the session.",
+        "You completed the full response and stayed engaged throughout the session.",
       suggestion: null,
     });
   }
 
-  // ----------------------------------------
-  // 2️⃣ Area to Improve
-  // ----------------------------------------
+  // --------------------------------------------------
+  // 2️⃣ Area to Improve (Metric-Driven)
+  // --------------------------------------------------
 
-  if (fluencyScore < 50) {
+  if (longestPause > 6) {
     insights.push({
-      id: "improve-hesitation",
+      id: "improve-long-freeze",
+      title: "What Slowed You Down",
+      interpretation: `You paused for ${longestPause.toFixed(
+        1
+      )} seconds, which significantly disrupted the flow.`,
+      suggestion:
+        "Work on thinking aloud instead of remaining silent during difficult moments.",
+    });
+
+  } else if (longestPause > 4) {
+    insights.push({
+      id: "improve-long-pause",
+      title: "What Slowed You Down",
+      interpretation: `A pause of ${longestPause.toFixed(
+        1
+      )} seconds slightly affected your rhythm.`,
+      suggestion:
+        "Maintain verbal continuity while organizing your next thought.",
+    });
+
+  } else if (pauseCount >= 6) {
+    insights.push({
+      id: "improve-frequency",
       title: "What Slowed You Down",
       interpretation:
-        "Frequent pauses may have made your response harder to follow.",
+        "Frequent short pauses reduced the natural momentum of your answer.",
       suggestion:
-        "Try speaking continuously for at least 8–10 seconds before slowing down.",
+        "Practice connecting ideas smoothly without stopping between sentences.",
     });
-  } else if (fluencyScore < 75) {
+
+  } else if (speakingRatio < 0.65) {
     insights.push({
-      id: "improve-flow",
+      id: "improve-continuity",
       title: "What Slowed You Down",
       interpretation:
-        "Some hesitation interrupted the natural flow of your answer.",
+        "Your speaking time was limited relative to the total response window.",
       suggestion:
-        "Practice beginning your answer immediately without overthinking the first sentence.",
+        "Aim to maintain steady speech throughout the entire answer.",
     });
-  } else if (englishRatio < 0.75) {
-    insights.push({
-      id: "improve-language",
-      title: "What Slowed You Down",
-      interpretation:
-        "Switching languages reduced clarity during your response.",
-      suggestion:
-        "Try completing full thoughts in English before switching languages.",
-    });
-  } else if (wordCount < 40) {
-    insights.push({
-      id: "improve-length",
-      title: "What Slowed You Down",
-      interpretation:
-        "Your response was short, which limits depth and clarity.",
-      suggestion:
-        "Aim for 40–60 words to provide more complete answers.",
-    });
-  } else {
+
+  } else if (continuityScore < 70) {
     insights.push({
       id: "improve-structure",
       title: "What Slowed You Down",
       interpretation:
-        "Your response could be clearer with a more defined beginning and conclusion.",
+        "Your ideas were clear, but structuring them more tightly would improve clarity.",
       suggestion:
-        "Try structuring answers with a clear introduction and closing sentence.",
+        "Try organizing responses using a clear beginning, middle, and conclusion.",
+    });
+
+  } else if (wordCount < 40) {
+    insights.push({
+      id: "improve-depth",
+      title: "What Slowed You Down",
+      interpretation:
+        "Your response was relatively brief, which limited its overall impact.",
+      suggestion:
+        "Aim for 40–60 words to develop stronger explanations.",
+    });
+
+  } else {
+    insights.push({
+      id: "minor-refinement",
+      title: "What Slowed You Down",
+      interpretation:
+        "Your delivery was stable overall with minor areas for refinement.",
+      suggestion:
+        "Focus on making your key message more concise and direct.",
     });
   }
 
-  // ----------------------------------------
-  // 3️⃣ Next Session Focus
-  // ----------------------------------------
+  // --------------------------------------------------
+  // 3️⃣ Next Session Focus (Dynamic)
+  // --------------------------------------------------
+
+  let nextFocusSuggestion = "";
+
+  if (longestPause > 6) {
+    nextFocusSuggestion =
+      "Focus on reducing long silent pauses by continuing to speak while thinking.";
+
+  } else if (pauseCount >= 6) {
+    nextFocusSuggestion =
+      "Focus on reducing frequent short pauses between ideas.";
+
+  } else if (continuityScore < 65) {
+    nextFocusSuggestion =
+      "Focus on maintaining uninterrupted speech for the first 10 seconds.";
+
+  } else if (wordCount < 50) {
+    nextFocusSuggestion =
+      "Focus on expanding your answer with one concrete example.";
+
+  } else {
+    nextFocusSuggestion =
+      "Focus on refining structure while maintaining your current speaking rhythm.";
+  }
 
   insights.push({
     id: "next-focus",
     title: "Next Session Focus",
     interpretation:
-      "In your next attempt, concentrate on one improvement area rather than trying to fix everything at once.",
-    suggestion:
-      "Start speaking immediately and maintain flow for the first 10 seconds before refining structure.",
+      "In your next attempt, concentrate on one improvement area rather than adjusting everything at once.",
+    suggestion: nextFocusSuggestion,
   });
 
   return insights;

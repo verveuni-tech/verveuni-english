@@ -1,9 +1,24 @@
 import { memo } from "react";
 
-function FeedbackUI({ insights = [], scores, levels }) {
+function FeedbackUI({ insights = [], scores = {}, levels = {} }) {
+  // ✅ Backward-compatible mapping
+  const continuity =
+    scores.continuity ?? scores.fluency ?? 0;
+
+  const vocalStability =
+    scores.vocal_stability ?? scores.confidence ?? 0;
+
+  const languageControl =
+    scores.language_control ?? scores.english ?? 0;
+
+  const structure =
+    scores.structure ?? 0;
+
+  const finalScore = scores.final ?? 0;
+
   return (
     <div className="min-h-screen bg-black text-white px-6 py-16">
-      <div className="mx-auto max-w-3xl">
+      <div className="mx-auto max-w-4xl">
 
         {/* -------------------------------- */}
         {/* Header */}
@@ -19,27 +34,40 @@ function FeedbackUI({ insights = [], scores, levels }) {
         </div>
 
         {/* -------------------------------- */}
-        {/* Score Summary */}
+        {/* Score Summary (v3 Architecture) */}
         {/* -------------------------------- */}
-        {scores && (
-          <div className="grid grid-cols-3 gap-6 mb-16 text-center border-y border-white/10 py-6">
-            <ScoreMetric
-              label="Fluency"
-              value={scores.fluency}
-              level={levels?.fluency_level}
-            />
-            <ScoreMetric
-              label="English Usage"
-              value={scores.english}
-              level={levels?.english_level}
-            />
-            <ScoreMetric
-              label="Overall"
-              value={scores.final}
-              level={levels?.final_level}
-            />
-          </div>
-        )}
+        <div className="grid grid-cols-2 md:grid-cols-5 gap-6 mb-16 text-center border-y border-white/10 py-6">
+
+          <ScoreMetric
+            label="Continuity"
+            value={continuity}
+            level={levels?.continuity_level}
+          />
+
+          <ScoreMetric
+            label="Vocal Stability"
+            value={vocalStability}
+            level={levels?.vocal_stability_level}
+          />
+
+          <ScoreMetric
+            label="Language Control"
+            value={languageControl}
+            level={levels?.language_control_level}
+          />
+
+          <ScoreMetric
+            label="Structure"
+            value={structure}
+            level={levels?.structure_level}
+          />
+
+          <ScoreMetric
+            label="Overall"
+            value={finalScore}
+            level={levels?.final_level}
+          />
+        </div>
 
         {/* -------------------------------- */}
         {/* Feedback Sections */}
@@ -90,7 +118,7 @@ function FeedbackUI({ insights = [], scores, levels }) {
 /* Score Metric Component */
 /* -------------------------------- */
 
-function ScoreMetric({ label, value, level }) {
+function ScoreMetric({ label, value = 0, level }) {
   return (
     <div>
       <p className="text-xs uppercase tracking-wider text-white/40">
